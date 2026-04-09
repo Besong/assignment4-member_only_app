@@ -1,18 +1,48 @@
+require("dotenv").config();
 const path = require("node:path");
-const { Pool } = require("pg");
 const express = require("express");
 const session = require("express-session");
-const passport = require("passport");
-const bcrypt = require("bcryptjs");
-const LocalStrategy = require('passport-local').Strategy;
+const flash = require("connect-flash");
+const passport = require("./config/passport.js");
+const usersRouter = require("./routes/usersRouter.js");
+const messagesRouter = require("./routes/messagesRouter.js");
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_CONNECTION_URL 
-});
+
 const app = express();
+
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.use(session({ secret: "cats", resave: false, saveUninitialized: false }));
-app.use(passport.session());
+const assetsPath = path.join(__dirname, "public")
+
+app.use(express.static(assetsPath))
 app.use(express.urlencoded({ extended: false }));
+
+app.use(session({ 
+    secret: process.env.SESSION_SECRET, 
+    resave: false, 
+    saveUninitialized: false }));
+
+app.use(flash());
+app.use(passport.session());
+
+
+app.use((req, res, next) => {
+  
+  const flashErrors = req.flash('error');
+  res.locals.errors = flashErrors.length > 0 ? flashErrors : null;
+  
+  next();
+
+});
+
+app.use("/", messagesRouter);
+app.use("/", usersRouter);
+
+const PORT = 3000
+app.listen(PORT, (error) => {
+    if (error) {
+        throw error
+    }
+    console.log(`Members only app - listening on port ${PORT}!`)
+})
