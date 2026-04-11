@@ -12,6 +12,7 @@ const app = express();
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+app.set("trust proxy", 1)
 
 const assetsPath = path.join(__dirname, "public")
 
@@ -21,7 +22,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session({ 
     secret: process.env.SESSION_SECRET, 
     resave: false, 
-    saveUninitialized: false }));
+    saveUninitialized: false,
+    cookie: {
+        secure: true
+    }
+}));
 
 app.use(flash());
 app.use(passport.session());
