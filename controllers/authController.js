@@ -1,7 +1,7 @@
 const passport = require("passport");
 
 exports.getLogin = (req, res) => {
-    res.render("log-in-form")
+    res.render("forms/log-in-form")
 };
 
 exports.postLogin = passport.authenticate("local", {

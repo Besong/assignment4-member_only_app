@@ -5,7 +5,8 @@ const pool = require("../db/pool.js");
 
 // Authentication behind the scene
 passport.use(
-    new LocalStrategy (async (email, password_hash, done) => {
+    new LocalStrategy ({ usernameField: 'email', passwordField: "password" },
+        async (email, password, done) => {
         try {
             const { rows } = await pool.query(
                 'SELECT * FROM users WHERE email = $1',
@@ -17,7 +18,7 @@ passport.use(
             if(!user) {
                 return done(null, false, {message: "Incorrect email"});
             }
-            const match = await bcrypt.compare(password_hash, user.password_hash)
+            const match = await bcrypt.compare(password, user.password_hash)
             if(!match) {
                 // passwords do not match!
                 return done(null, false, {message: "Incorrect password"});
@@ -48,4 +49,4 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-exports.passport;
+module.exports = passport;

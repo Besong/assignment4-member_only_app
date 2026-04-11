@@ -4,7 +4,7 @@ const db = require("../db/messagesQueries.js");
 exports.getIndex = async (req, res, next) => {
   try {
     const messages = await db.getAllMessages();
-    res.render('messages', {
+    res.render('messages/messages', {
       messages: messages
     });
   } catch (err) {
@@ -15,7 +15,7 @@ exports.getIndex = async (req, res, next) => {
 exports.getNewMessage = (req, res) => {
   if (!req.user) return res.redirect('/log-in');
 
-  res.render('new-message-form');
+  res.render('messages/new-message-form');
 };
 
 exports.postNewMessage = [
@@ -38,7 +38,7 @@ exports.postNewMessage = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.render("new-message-form", {
+      return res.render("messages/new-message-form", {
         errors: errors.array(),
         previousData: req.body,
       });
@@ -55,6 +55,7 @@ exports.postNewMessage = [
     }
   },
 ];
+
 
 exports.postDeleteMessage = async (req, res, next) => {
   if (!req.user || !req.user.is_admin) {

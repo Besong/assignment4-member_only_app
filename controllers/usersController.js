@@ -3,7 +3,7 @@ const db = require("../db/usersQueries.js");
 const { body, validationResult } = require("express-validator");
 
 exports.getSignUp = (req, res) => {
-    res.render("sign-up-form")
+    res.render("forms/sign-up-form")
 }
 
 exports.postSignUp = [
@@ -24,7 +24,7 @@ exports.postSignUp = [
     .withMessage('Provide a valid email address.')
     .normalizeEmail(),
   body('password')
-    .isLength({ min: 7 })
+    .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters.'),
   body('confirm_password').custom((value, { req }) => {
     if (value !== req.body.password) {
@@ -39,7 +39,7 @@ exports.postSignUp = [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.render('sign-up-form', {
+      return res.render('forms/sign-up-form', {
         title: 'Sign Up',
         errors: errors.array(),
         previousData: req.body,
@@ -70,7 +70,7 @@ exports.getMembership = (req, res) => {
   if (!req.user) return res.redirect("/log-in");
   if (req.user.is_member) return res.redirect("/");
 
-  res.render("passcode-form", {
+  res.render("forms/passcode-form", {
     title: "Unlock Member Status",
     target: "Member",
     action: "/membership"
@@ -82,7 +82,7 @@ exports.postMembership = async (req, res, next) => {
   const secretCode = process.env.MEMBER_PASSCODE;
 
   if(passcode !== secretCode) {
-    return res.render("passcode-form", {
+    return res.render("forms/passcode-form", {
       title: "Unlock Member Status",
       target: "Member",
       action: "/membership",
@@ -98,23 +98,23 @@ exports.postMembership = async (req, res, next) => {
   }
 };
 
-export const getAdmin = (req, res) => {
+exports.getAdmin = (req, res) => {
   if (!req.user) return res.redirect('/log-in');
   if (req.user.is_admin) return res.redirect('/');
-
-  res.render('passcode-form', {
+  
+  res.render('forms/passcode-form', {
     title: 'Become an Admin',
     target: 'Admin',
     action: '/admin',
   });
 };
 
-export const postAdmin = async (req, res) => {
+exports.postAdmin = async (req, res) => {
   const passcode = req.body.passcode?.trim();
   const secretCode = process.env.ADMIN_PASSCODE;
 
   if (passcode !== secretCode) {
-    return res.render('passcode-form', {
+    return res.render('forms/passcode-form', {
       title: 'Become an Admin',
       target: 'Admin',
       action: '/admin',

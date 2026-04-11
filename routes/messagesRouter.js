@@ -13,4 +13,4 @@ messagesRouter.post(
   messagesController.postDeleteMessage,
 );
 
-exports.messagesRouter;
+module.exports = messagesRouter;

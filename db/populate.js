@@ -1,10 +1,12 @@
 require("dotenv").config();
 const { Client } = require("pg");
+const bcrypt = require("bcryptjs");
 
-const SQL = `
+const CREATE_TABLE_SQL = `
 
-DELETE FROM users
-WHERE email IN ('john.doe@example.com', 'jane.smith@example.com');
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS users;
+
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -25,18 +27,6 @@ CREATE TABLE messages (
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
-
-INSERT INTO users (first_name, last_name, email, password_hash, membership_status)
-VALUES 
-('John', 'Doe', 'john.doe@example.com', 'hashed_password_1', 'member'),
-('Jane', 'Smith', 'jane.smith@example.com', 'hashed_password_2', 'admin');
-
-
-INSERT INTO messages (title, body, user_id)
-VALUES
-('Welcome Message', 'Hello, I'm glad to be part of this amazing community!', 1),
-('Admin Announcement', 'This is an important update from the team.', 2);
 `;
 
 async function main() {
@@ -46,7 +36,31 @@ async function main() {
 
     await client.connect();
     console.log("Connected. Populating database...");
-    await client.query(SQL);
+
+    const johnPass = await bcrypt.hash("password123", 10);
+    const janePass = await bcrypt.hash("admin123", 10);
+
+    await client.query(CREATE_TABLE_SQL);
+
+    const john = await client.query(
+        `INSERT INTO users (first_name, last_name, email, password_hash, is_member, is_admin)
+        VALUES ('John', 'Doe', 'john.doe@example.com', $1, TRUE, FALSE)
+        RETURNING id`, [johnPass]
+    );
+
+    const jane = await client.query(
+        `INSERT INTO users (first_name, last_name, email, password_hash, is_member, is_admin)
+        VALUES ('Jane', 'Smith', 'jane.smith@example.com', $1, TRUE, TRUE)
+        RETURNING id`, [janePass]
+    );
+
+    await client.query(`
+        INSERT INTO messages (title, body, user_id)
+        VALUES
+        ('Welcome Message', 'Hello, glad to be part of this amazing community!', $1),
+        ('Admin Announcement', 'This is an important update from the team.', $2)`, [john.rows[0].id, jane.rows[0].id]
+    );
+
     console.log("Database populated successfully.");
     await client.end();
 }
