@@ -30,7 +30,7 @@ app.use(passport.session());
 app.use((req, res, next) => {
 
   res.locals.user = req.user;
-    
+
   const flashErrors = req.flash('error');
   res.locals.errors = flashErrors.length > 0 ? flashErrors : null;
   
@@ -49,4 +49,3 @@ app.listen(PORT, (error) => {
     console.log(`Members only app - listening on port ${PORT}!`)
 })
 
-// Reference github: https://github.com/SRPater/odin-members-only/blob/main/app.js
