@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node db/populate.js && node app.js",
     "dev": "nodemon app.js",
     "db:populate": "node db/populate.js"
   },
