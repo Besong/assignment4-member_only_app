@@ -46,24 +46,11 @@ app.use((req, res, next) => {
 app.use("/", messagesRouter);
 app.use("/", usersRouter);
 
-// Changes for railway deployment
-const PORT = 3000
-const initSchema = require('./db/initSchema');
-
-initSchema().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}).catch(err => {
-  console.error('Failed to initialize schema:', err);
-  process.exit(1);
+const PORT = 3000;
+app.listen(PORT, (error) => {
+    if (error) {
+        throw error
+    }
+    console.log(`Members only app - listening on port ${PORT}!`)
 });
-
-
-// app.listen(PORT, (error) => {
-//     if (error) {
-//         throw error
-//     }
-//     console.log(`Members only app - listening on port ${PORT}!`)
-// })
 
