@@ -28,7 +28,10 @@ CREATE TABLE IF NOT EXITS messages (
 
 async function main() {
     const client = new Client ({
-        connectionString: process.env.DATABASE_CONNECTION_URL
+        connectionString: process.env.DATABASE_CONNECTION_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
     });
 
     await client.connect();
